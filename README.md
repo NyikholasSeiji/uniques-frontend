@@ -64,4 +64,3 @@ O estilo visual do projeto será:
 # 👨‍💻 Autor
 
 Desenvolvido por **Nyikholas Seiji**.
->>>>>>> f4c84ffc9da666b30ece12b93d9eefbbb1d16457
