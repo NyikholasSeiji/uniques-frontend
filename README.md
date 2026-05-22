@@ -1,73 +1,67 @@
-# React + TypeScript + Vite
+# UniqueS (US)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 📌 Sobre o projeto
 
-Currently, two official plugins are available:
+O **UniqueS (US)** é um projeto de uma plataforma web focada em **skincare personalizado**, inspirado em modelos modernos de experiência digital como a Manual, porém com identidade própria e direcionado para cuidados com a pele.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+A proposta do sistema é criar uma experiência simples, elegante e personalizada, onde o usuário responde um **questionário sobre sua pele**, e com base nas respostas, o sistema apresenta **produtos específicos recomendados para aquela condição**.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+# 🎯 Objetivo
 
-## Expanding the ESLint configuration
+Desenvolver uma aplicação web capaz de:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Coletar informações do usuário através de um formulário
+- Identificar necessidades específicas da pele
+- Exibir produtos recomendados com base nas respostas
+- Criar uma experiência semelhante a uma consultoria digital de skincare
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+# 💡 Conceito da marca
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Nome: UniqueS
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Significado
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **US** → abreviação da marca
+- **Unique** → exclusivo
+- **S** → Skin
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+A ideia da marca é transmitir:
+
+- Exclusividade
+- Autocuidado
+- Personalização
+- Elegância
+- Confiança
+
+---
+
+# 🎨 Identidade visual
+
+O estilo visual do projeto será:
+
+- Minimalista
+- Clean
+- Sofisticado
+- Moderno
+- Foco em luxo discreto
+
+---
+
+# 🛠 Tecnologias
+
+## Front-end
+
+- React
+- Vite
+- Tailwind CSS
+
+---
+
+# 👨‍💻 Autor
+
+Desenvolvido por **Nyikholas Seiji**.
+>>>>>>> f4c84ffc9da666b30ece12b93d9eefbbb1d16457
