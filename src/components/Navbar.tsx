@@ -1,15 +1,102 @@
-import "../assets/styles/logo.css";
+import { useState, type MouseEvent } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { handleAnchorClick, scrollToTop } from "../utils/smoothScroll";
 
-const Navbar = () => (
-  <div>
-    <img src="/img/Logo.png" alt="Logo UniqueS" className="logo"></img>
-    <h1>UniqueS</h1>
-    <ul>
-      <li>Home</li>
-      <li>Sobre</li>
-      <li>Produtos</li>
-    </ul>
-  </div>
-);
+const LINKS = [
+  { label: "Como Funciona", href: "#como-funciona" },
+  { label: "Benefícios", href: "#beneficios" },
+  { label: "Sobre", href: "#sobre" },
+];
+
+interface NavbarProps {
+  /** Usada em páginas sem as seções âncora (ex: "Em breve"): esconde os links de navegação in-page. */
+  minimal?: boolean;
+}
+
+const Navbar = ({ minimal = false }: NavbarProps) => {
+  const [open, setOpen] = useState(false);
+  const location = useLocation();
+
+  const handleLogoClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    setOpen(false);
+    if (location.pathname === "/") {
+      e.preventDefault();
+      scrollToTop();
+    }
+  };
+
+  return (
+    <header className="sticky top-0 z-50 border-b border-ink/10 bg-cream/90 backdrop-blur-sm">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-12">
+        <Link to="/" className="flex items-center gap-3" onClick={handleLogoClick}>
+          <img src="/img/Logo.png" alt="Logo UniqueS" className="h-8 w-auto" />
+          <span className="font-display text-2xl tracking-wide text-ink">UniqueS</span>
+        </Link>
+
+        {!minimal && (
+          <nav className="hidden items-center gap-10 md:flex">
+            {LINKS.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                onClick={(e) => handleAnchorClick(e, link.href)}
+                className="text-xs font-medium uppercase tracking-[0.18em] text-ink/70 transition-colors hover:text-ink"
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
+        )}
+
+        <Link
+          to="/questionario"
+          className={`rounded-full border border-ink px-6 py-2.5 text-xs font-medium uppercase tracking-[0.18em] text-ink transition-colors hover:bg-ink hover:text-cream ${
+            minimal ? "inline-block" : "hidden md:inline-block"
+          }`}
+        >
+          Fazer o Quiz
+        </Link>
+
+        {!minimal && (
+          <button
+            type="button"
+            onClick={() => setOpen((prev) => !prev)}
+            aria-label="Abrir menu"
+            aria-expanded={open}
+            className="flex flex-col gap-1.5 md:hidden"
+          >
+            <span className="h-px w-6 bg-ink" />
+            <span className="h-px w-6 bg-ink" />
+          </button>
+        )}
+      </div>
+
+      {!minimal && open && (
+        <div className="flex flex-col gap-1 border-t border-ink/10 bg-cream px-6 py-6 md:hidden">
+          {LINKS.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              onClick={(e) => {
+                setOpen(false);
+                handleAnchorClick(e, link.href);
+              }}
+              className="py-3 text-xs font-medium uppercase tracking-[0.18em] text-ink/70"
+            >
+              {link.label}
+            </a>
+          ))}
+          <Link
+            to="/questionario"
+            onClick={() => setOpen(false)}
+            className="mt-2 rounded-full border border-ink px-6 py-3 text-center text-xs font-medium uppercase tracking-[0.18em] text-ink"
+          >
+            Fazer o Quiz
+          </Link>
+        </div>
+      )}
+    </header>
+  );
+};
 
 export default Navbar;
