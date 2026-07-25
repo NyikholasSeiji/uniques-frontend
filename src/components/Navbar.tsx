@@ -1,6 +1,7 @@
 import { useState, type MouseEvent } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { handleAnchorClick, scrollToTop } from "../utils/smoothScroll";
+import { useAuth } from "../context/AuthContext";
 
 const LINKS = [
   { label: "Como Funciona", href: "#como-funciona" },
@@ -16,6 +17,7 @@ interface NavbarProps {
 const Navbar = ({ minimal = false }: NavbarProps) => {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
 
   const handleLogoClick = (e: MouseEvent<HTMLAnchorElement>) => {
     setOpen(false);
@@ -48,14 +50,20 @@ const Navbar = ({ minimal = false }: NavbarProps) => {
           </nav>
         )}
 
-        <Link
-          to="/questionario"
-          className={`rounded-full border border-ink px-6 py-2.5 text-xs font-medium uppercase tracking-[0.18em] text-ink transition-colors hover:bg-ink hover:text-cream ${
-            minimal ? "inline-block" : "hidden md:inline-block"
-          }`}
-        >
-          Fazer o Quiz
-        </Link>
+        <div className={`items-center gap-4 ${minimal ? "flex" : "hidden md:flex"}`}>
+          <Link
+            to={user ? "/perfil" : "/login"}
+            className="text-xs font-medium uppercase tracking-[0.18em] text-ink/70 transition-colors hover:text-ink"
+          >
+            {user ? user.name.split(" ")[0] : "Entrar"}
+          </Link>
+          <Link
+            to="/questionario"
+            className="rounded-full border border-ink px-6 py-2.5 text-xs font-medium uppercase tracking-[0.18em] text-ink transition-colors hover:bg-ink hover:text-cream"
+          >
+            Fazer o Quiz
+          </Link>
+        </div>
 
         {!minimal && (
           <button
@@ -86,6 +94,13 @@ const Navbar = ({ minimal = false }: NavbarProps) => {
               {link.label}
             </a>
           ))}
+          <Link
+            to={user ? "/perfil" : "/login"}
+            onClick={() => setOpen(false)}
+            className="py-3 text-xs font-medium uppercase tracking-[0.18em] text-ink/70"
+          >
+            {user ? user.name.split(" ")[0] : "Entrar"}
+          </Link>
           <Link
             to="/questionario"
             onClick={() => setOpen(false)}
