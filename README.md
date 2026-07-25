@@ -58,6 +58,63 @@ O estilo visual do projeto será:
 - React
 - Vite
 - Tailwind CSS
+- React Router
+- Axios
+
+---
+
+# ✅ Funcionalidades
+
+- Landing page com apresentação do produto
+- Cadastro e login de usuário (autenticação via JWT)
+- Perfil do usuário: editar nome e condições de pele, trocar senha e excluir conta
+- Rotas protegidas para páginas que exigem autenticação
+- Questionário de skincare e resultados *(em desenvolvimento)*
+
+---
+
+# 📁 Estrutura do projeto
+
+```
+src/
+├── components/   # Componentes compartilhados (Navbar, Footer, ProtectedRoute...)
+├── context/      # Contextos globais (AuthContext)
+├── pages/        # Páginas da aplicação (Login, Register, Profile, Landing...)
+├── services/     # Chamadas à API (api.ts, auth.ts, users.ts)
+├── types/        # Tipos TypeScript compartilhados
+└── utils/        # Funções utilitárias
+```
+
+O front-end consome uma API REST (back-end Spring Boot) para autenticação e gerenciamento de usuários.
+
+---
+
+# 🚀 Como rodar o projeto
+
+## Pré-requisitos
+
+- Node.js 18+
+- O back-end da aplicação rodando (por padrão em `http://localhost:8080/api`)
+
+## Passos
+
+```bash
+# instalar dependências
+npm install
+
+# configurar a URL da API (opcional, padrão é http://localhost:8080/api)
+# crie um arquivo .env na raiz do projeto:
+echo "VITE_API_URL=http://localhost:8080/api" > .env
+
+# rodar em modo de desenvolvimento
+npm run dev
+
+# build de produção
+npm run build
+
+# preview do build de produção
+npm run preview
+```
 
 ---
 
