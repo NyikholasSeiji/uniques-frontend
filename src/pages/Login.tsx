@@ -4,6 +4,7 @@ import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useAuth } from "../context/AuthContext";
+import { getErrorMessage } from "../utils/errors";
 
 export default function Login() {
   const { login } = useAuth();
@@ -26,7 +27,7 @@ export default function Login() {
       if (axios.isAxiosError(err) && err.response?.status === 401) {
         setError("E-mail ou senha incorretos.");
       } else {
-        setError("Não foi possível entrar. Tente novamente.");
+        setError(getErrorMessage(err, "Não foi possível entrar. Tente novamente."));
       }
     } finally {
       setSubmitting(false);

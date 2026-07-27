@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useAuth } from "../context/AuthContext";
 import { changePassword, deleteUser, updateUser } from "../services/users";
+import { getErrorMessage } from "../utils/errors";
 
 export default function Profile() {
   const { user, setUser, logout } = useAuth();
@@ -18,9 +19,12 @@ export default function Profile() {
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [savingPassword, setSavingPassword] = useState(false);
+
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -49,8 +53,8 @@ export default function Profile() {
       });
       setUser(updated);
       setProfileMessage("Perfil atualizado com sucesso.");
-    } catch {
-      setProfileError("Não foi possível atualizar seu perfil. Tente novamente.");
+    } catch (err) {
+      setProfileError(getErrorMessage(err, "Não foi possível atualizar seu perfil. Tente novamente."));
     } finally {
       setSavingProfile(false);
     }
@@ -60,18 +64,25 @@ export default function Profile() {
     e.preventDefault();
     setPasswordMessage(null);
     setPasswordError(null);
+
+    if (newPassword !== confirmNewPassword) {
+      setPasswordError("As senhas não coincidem.");
+      return;
+    }
+
     setSavingPassword(true);
 
     try {
       await changePassword(user.id, { currentPassword, newPassword });
       setCurrentPassword("");
       setNewPassword("");
+      setConfirmNewPassword("");
       setPasswordMessage("Senha alterada com sucesso.");
     } catch (err) {
       if (axios.isAxiosError(err) && err.response?.status === 400) {
         setPasswordError("Senha atual incorreta.");
       } else {
-        setPasswordError("Não foi possível alterar sua senha. Tente novamente.");
+        setPasswordError(getErrorMessage(err, "Não foi possível alterar sua senha. Tente novamente."));
       }
     } finally {
       setSavingPassword(false);
@@ -84,9 +95,14 @@ export default function Profile() {
     );
     if (!confirmed) return;
 
-    await deleteUser(user.id);
-    logout();
-    navigate("/");
+    setDeleteError(null);
+    try {
+      await deleteUser(user.id);
+      logout();
+      navigate("/");
+    } catch (err) {
+      setDeleteError(getErrorMessage(err, "Não foi possível excluir sua conta. Tente novamente."));
+    }
   };
 
   const handleLogout = () => {
@@ -184,6 +200,21 @@ export default function Profile() {
             />
           </label>
 
+          <label className="flex flex-col gap-2">
+            <span className="text-xs font-medium uppercase tracking-[0.18em] text-ink/60">
+              Confirmar nova senha
+            </span>
+            <input
+              type="password"
+              required
+              minLength={8}
+              maxLength={72}
+              value={confirmNewPassword}
+              onChange={(e) => setConfirmNewPassword(e.target.value)}
+              className="rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
+            />
+          </label>
+
           {passwordMessage && <p className="text-sm text-ink/70">{passwordMessage}</p>}
           {passwordError && <p className="text-sm text-red-700">{passwordError}</p>}
 
@@ -212,6 +243,7 @@ export default function Profile() {
             Excluir conta
           </button>
         </div>
+        {deleteError && <p className="mt-4 text-sm text-red-700">{deleteError}</p>}
       </section>
       <Footer minimal />
     </>

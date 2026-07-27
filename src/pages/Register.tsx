@@ -4,6 +4,7 @@ import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useAuth } from "../context/AuthContext";
+import { getErrorMessage } from "../utils/errors";
 
 export default function Register() {
   const { register } = useAuth();
@@ -12,12 +13,19 @@ export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (password !== confirmPassword) {
+      setError("As senhas não coincidem.");
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -27,7 +35,7 @@ export default function Register() {
       if (axios.isAxiosError(err) && err.response?.status === 409) {
         setError("Este e-mail já está cadastrado.");
       } else {
-        setError("Não foi possível criar sua conta. Tente novamente.");
+        setError(getErrorMessage(err, "Não foi possível criar sua conta. Tente novamente."));
       }
     } finally {
       setSubmitting(false);
@@ -88,6 +96,21 @@ export default function Register() {
               className="rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
             />
             <span className="text-xs text-ink/40">Mínimo de 8 caracteres.</span>
+          </label>
+
+          <label className="flex flex-col gap-2">
+            <span className="text-xs font-medium uppercase tracking-[0.18em] text-ink/60">
+              Confirmar senha
+            </span>
+            <input
+              type="password"
+              required
+              minLength={8}
+              maxLength={72}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
+            />
           </label>
 
           {error && <p className="text-sm text-red-700">{error}</p>}
