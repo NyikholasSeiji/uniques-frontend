@@ -1,123 +1,147 @@
-# UniqueS (US)
+# UniqueS Front-end
 
-## 📌 Sobre o projeto
+Front-end da plataforma **UniqueS**, desenvolvido por **Nyikholas Seiji**.
 
-O **UniqueS (US)** é um projeto de uma plataforma web focada em **skincare personalizado**, inspirado em modelos modernos de experiência digital como a Manual, porém com identidade própria e direcionado para cuidados com a pele.
+O **UniqueS (US)** é uma plataforma web voltada para uma experiência personalizada de skincare. A proposta é oferecer uma interface moderna e intuitiva onde o usuário poderá responder um questionário sobre sua pele e, com base nas respostas, receber recomendações de produtos adequados às suas necessidades.
 
-A proposta do sistema é criar uma experiência simples, elegante e personalizada, onde o usuário responde um **questionário sobre sua pele**, e com base nas respostas, o sistema apresenta **produtos específicos recomendados para aquela condição**.
-
----
-
-# 🎯 Objetivo
-
-Desenvolver uma aplicação web capaz de:
-
-- Coletar informações do usuário através de um formulário
-- Identificar necessidades específicas da pele
-- Exibir produtos recomendados com base nas respostas
-- Criar uma experiência semelhante a uma consultoria digital de skincare
+O projeto adota uma identidade visual **minimalista**, **clean** e **moderna**, priorizando uma boa experiência do usuário e uma navegação simples.
 
 ---
 
-# 💡 Conceito da marca
-
-## Nome: UniqueS
-
-### Significado
-
-- **US** → abreviação da marca
-- **Unique** → exclusivo
-- **S** → Skin
-
-A ideia da marca é transmitir:
-
-- Exclusividade
-- Autocuidado
-- Personalização
-- Elegância
-- Confiança
-
----
-
-# 🎨 Identidade visual
-
-O estilo visual do projeto será:
-
-- Minimalista
-- Clean
-- Sofisticado
-- Moderno
-- Foco em luxo discreto
-
----
-
-# 🛠 Tecnologias
-
-## Front-end
+## Tecnologias
 
 - React
 - Vite
+- TypeScript
 - Tailwind CSS
-- React Router
+- React Router DOM
 - Axios
+- JWT Authentication
 
 ---
 
-# ✅ Funcionalidades
+## Requisitos
 
-- Landing page com apresentação do produto
-- Cadastro e login de usuário (autenticação via JWT)
-- Perfil do usuário: editar nome e condições de pele, trocar senha e excluir conta
-- Rotas protegidas para páginas que exigem autenticação
-- Questionário de skincare e resultados *(em desenvolvimento)*
+Antes de iniciar, certifique-se de possuir:
 
----
-
-# 📁 Estrutura do projeto
-
-```
-src/
-├── components/   # Componentes compartilhados (Navbar, Footer, ProtectedRoute...)
-├── context/      # Contextos globais (AuthContext)
-├── pages/        # Páginas da aplicação (Login, Register, Profile, Landing...)
-├── services/     # Chamadas à API (api.ts, auth.ts, users.ts)
-├── types/        # Tipos TypeScript compartilhados
-└── utils/        # Funções utilitárias
-```
-
-O front-end consome uma API REST (back-end Spring Boot) para autenticação e gerenciamento de usuários.
+- Node.js 18 ou superior
+- npm
+- Back-end da aplicação em execução
 
 ---
 
-# 🚀 Como rodar o projeto
+## Instalação
 
-## Pré-requisitos
-
-- Node.js 18+
-- O back-end da aplicação rodando (por padrão em `http://localhost:8080/api`)
-
-## Passos
+Clone o repositório:
 
 ```bash
-# instalar dependências
+git clone <url-do-repositorio>
+```
+
+Entre na pasta do projeto:
+
+```bash
+cd uniques-frontend
+```
+
+Instale as dependências:
+
+```bash
 npm install
+```
 
-# configurar a URL da API (opcional, padrão é http://localhost:8080/api)
-# crie um arquivo .env na raiz do projeto:
-echo "VITE_API_URL=http://localhost:8080/api" > .env
+---
 
-# rodar em modo de desenvolvimento
+## Configuração
+
+Crie um arquivo `.env` na raiz do projeto:
+
+```env
+VITE_API_URL=http://localhost:8080/api
+```
+
+Caso a variável não seja definida, a aplicação utilizará a URL configurada no projeto.
+
+---
+
+## Executando a aplicação
+
+Servidor de desenvolvimento:
+
+```bash
 npm run dev
+```
 
-# build de produção
+Gerar build de produção:
+
+```bash
 npm run build
+```
 
-# preview do build de produção
+Visualizar o build localmente:
+
+```bash
 npm run preview
 ```
 
 ---
 
-# 👨‍💻 Autor
+## Estrutura do Projeto
+
+```text
+src/
+├── components/
+├── context/
+├── pages/
+├── services/
+├── types/
+├── utils/
+└── main.tsx
+```
+
+---
+
+## Funcionalidades
+
+- Landing Page
+- Cadastro de usuários
+- Login com autenticação JWT
+- Rotas protegidas
+- Gerenciamento de perfil
+- Consumo de API REST utilizando Axios
+- Questionário de skincare *(em desenvolvimento)*
+
+---
+
+## API
+
+O front-end consome uma API REST desenvolvida em **Spring Boot**.
+
+URL padrão:
+
+```text
+http://localhost:8080/api
+```
+
+A URL pode ser alterada através da variável de ambiente:
+
+```env
+VITE_API_URL=<url-da-api>
+```
+
+---
+
+## Scripts
+
+| Comando | Descrição |
+|----------|-----------|
+| `npm run dev` | Inicia o servidor de desenvolvimento |
+| `npm run build` | Gera o build para produção |
+| `npm run preview` | Executa o build localmente |
+| `npm run lint` | Executa o ESLint (caso configurado) |
+
+---
+
+## Autor
 
 Desenvolvido por **Nyikholas Seiji**.
