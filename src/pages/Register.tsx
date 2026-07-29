@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import PasswordInput from "../components/PasswordInput";
 import { useAuth } from "../context/AuthContext";
 import { getErrorMessage } from "../utils/errors";
 
@@ -14,6 +15,7 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [skinConditions, setSkinConditions] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -29,7 +31,15 @@ export default function Register() {
     setSubmitting(true);
 
     try {
-      await register({ name, email, password });
+      await register({
+        name,
+        email,
+        password,
+        skinConditions: skinConditions
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean),
+      });
       navigate("/perfil");
     } catch (err) {
       if (axios.isAxiosError(err) && err.response?.status === 409) {
@@ -86,14 +96,13 @@ export default function Register() {
             <span className="text-xs font-medium uppercase tracking-[0.18em] text-ink/60">
               Senha
             </span>
-            <input
-              type="password"
+            <PasswordInput
               required
               minLength={8}
               maxLength={72}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
+              className="w-full rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
             />
             <span className="text-xs text-ink/40">Mínimo de 8 caracteres.</span>
           </label>
@@ -102,15 +111,28 @@ export default function Register() {
             <span className="text-xs font-medium uppercase tracking-[0.18em] text-ink/60">
               Confirmar senha
             </span>
-            <input
-              type="password"
+            <PasswordInput
               required
               minLength={8}
               maxLength={72}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
+            />
+          </label>
+
+          <label className="flex flex-col gap-2">
+            <span className="text-xs font-medium uppercase tracking-[0.18em] text-ink/60">
+              Condições de pele (opcional)
+            </span>
+            <input
+              type="text"
+              placeholder="Ex: oleosidade, sensibilidade"
+              value={skinConditions}
+              onChange={(e) => setSkinConditions(e.target.value)}
               className="rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
             />
+            <span className="text-xs text-ink/40">Separe por vírgulas. Você pode preencher depois no seu perfil.</span>
           </label>
 
           {error && <p className="text-sm text-red-700">{error}</p>}

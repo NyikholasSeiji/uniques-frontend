@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import PasswordInput from "../components/PasswordInput";
 import { useAuth } from "../context/AuthContext";
 import { changePassword, deleteUser, updateUser } from "../services/users";
 import { getErrorMessage } from "../utils/errors";
@@ -36,6 +37,9 @@ export default function Profile() {
   if (!user) {
     return null;
   }
+
+  const profileUnchanged =
+    name.trim() === user.name && skinConditions === user.skinConditions.join(", ");
 
   const handleProfileSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -120,7 +124,12 @@ export default function Profile() {
         <h1 className="mt-4 font-display text-4xl font-medium leading-tight tracking-wide text-ink">
           Olá, {user.name}
         </h1>
-        <p className="mt-2 text-sm text-ink/60">{user.email}</p>
+        <div className="mt-2 flex items-center gap-3">
+          <p className="text-sm text-ink/60">{user.email}</p>
+          <span className="rounded-full bg-sand px-3 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-ink/60">
+            {user.role === "ADMIN" ? "Administradora" : "Cliente"}
+          </span>
+        </div>
 
         <form onSubmit={handleProfileSubmit} className="mt-12 flex flex-col gap-5">
           <h2 className="text-xs font-medium uppercase tracking-[0.18em] text-ink/40">
@@ -160,7 +169,7 @@ export default function Profile() {
 
           <button
             type="submit"
-            disabled={savingProfile}
+            disabled={savingProfile || profileUnchanged}
             className="mt-2 self-start rounded-full bg-ink px-8 py-3.5 text-xs font-medium uppercase tracking-[0.18em] text-cream transition-colors hover:bg-gold disabled:opacity-50"
           >
             {savingProfile ? "Salvando..." : "Salvar alterações"}
@@ -176,12 +185,11 @@ export default function Profile() {
             <span className="text-xs font-medium uppercase tracking-[0.18em] text-ink/60">
               Senha atual
             </span>
-            <input
-              type="password"
+            <PasswordInput
               required
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
-              className="rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
+              className="w-full rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
             />
           </label>
 
@@ -189,14 +197,13 @@ export default function Profile() {
             <span className="text-xs font-medium uppercase tracking-[0.18em] text-ink/60">
               Nova senha
             </span>
-            <input
-              type="password"
+            <PasswordInput
               required
               minLength={8}
               maxLength={72}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
+              className="w-full rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
             />
           </label>
 
@@ -204,14 +211,13 @@ export default function Profile() {
             <span className="text-xs font-medium uppercase tracking-[0.18em] text-ink/60">
               Confirmar nova senha
             </span>
-            <input
-              type="password"
+            <PasswordInput
               required
               minLength={8}
               maxLength={72}
               value={confirmNewPassword}
               onChange={(e) => setConfirmNewPassword(e.target.value)}
-              className="rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
+              className="w-full rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
             />
           </label>
 
