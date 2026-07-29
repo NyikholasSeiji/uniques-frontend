@@ -104,10 +104,13 @@ src/
 ## Funcionalidades
 
 - Landing Page
-- Cadastro de usuários
+- Cadastro de usuários, com condições de pele opcionais
 - Login com autenticação JWT
-- Rotas protegidas
-- Gerenciamento de perfil
+- Rotas protegidas (apenas autenticados) e públicas exclusivas (redireciona usuários já logados)
+- Logout automático em caso de sessão expirada/token inválido
+- Gerenciamento de perfil: editar nome e condições de pele, trocar senha e excluir conta
+- Exibição do papel do usuário (cliente/administradora)
+- Campos de senha com opção de mostrar/ocultar e confirmação
 - Consumo de API REST utilizando Axios
 - Questionário de skincare *(em desenvolvimento)*
 
