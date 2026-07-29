@@ -1,9 +1,8 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import PasswordInput from "../components/PasswordInput";
+import FormField from "../components/FormField";
 import { useAuth } from "../context/AuthContext";
 import { getErrorMessage } from "../utils/errors";
 
@@ -25,11 +24,11 @@ export default function Login() {
       await login({ email, password });
       navigate("/perfil");
     } catch (err) {
-      if (axios.isAxiosError(err) && err.response?.status === 401) {
-        setError("E-mail ou senha incorretos.");
-      } else {
-        setError(getErrorMessage(err, "Não foi possível entrar. Tente novamente."));
-      }
+      setError(
+        getErrorMessage(err, "Não foi possível entrar. Tente novamente.", {
+          401: "E-mail ou senha incorretos.",
+        })
+      );
     } finally {
       setSubmitting(false);
     }
@@ -47,30 +46,21 @@ export default function Login() {
         </h1>
 
         <form onSubmit={handleSubmit} className="mt-10 flex flex-col gap-5">
-          <label className="flex flex-col gap-2">
-            <span className="text-xs font-medium uppercase tracking-[0.18em] text-ink/60">
-              E-mail
-            </span>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
-            />
-          </label>
+          <FormField
+            label="E-mail"
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-          <label className="flex flex-col gap-2">
-            <span className="text-xs font-medium uppercase tracking-[0.18em] text-ink/60">
-              Senha
-            </span>
-            <PasswordInput
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
-            />
-          </label>
+          <FormField
+            label="Senha"
+            type="password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
           {error && <p className="text-sm text-red-700">{error}</p>}
 

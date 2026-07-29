@@ -1,64 +1,64 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import PasswordInput from "../components/PasswordInput";
+import FormField from "../components/FormField";
 import { useAuth } from "../context/AuthContext";
 import { changePassword, deleteUser, updateUser } from "../services/users";
 import { getErrorMessage } from "../utils/errors";
+import { parseSkinConditions } from "../utils/skinConditions";
+import type { User } from "../types/user";
+
+type FormStatus = { type: "success" | "error"; text: string } | null;
 
 export default function Profile() {
-  const { user, setUser, logout } = useAuth();
+  const { user } = useAuth();
+
+  if (!user) {
+    return null;
+  }
+
+  // key={user.id}: reinicializa o estado local do formulário se o usuário logado mudar.
+  return <ProfileContent key={user.id} user={user} />;
+}
+
+function ProfileContent({ user }: { user: User }) {
+  const { setUser, logout } = useAuth();
   const navigate = useNavigate();
 
-  const [name, setName] = useState(user?.name ?? "");
-  const [skinConditions, setSkinConditions] = useState(user?.skinConditions.join(", ") ?? "");
-  const [profileMessage, setProfileMessage] = useState<string | null>(null);
-  const [profileError, setProfileError] = useState<string | null>(null);
+  const [name, setName] = useState(user.name);
+  const [skinConditions, setSkinConditions] = useState(user.skinConditions.join(", "));
+  const [profileStatus, setProfileStatus] = useState<FormStatus>(null);
   const [savingProfile, setSavingProfile] = useState(false);
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
-  const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
-  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordStatus, setPasswordStatus] = useState<FormStatus>(null);
   const [savingPassword, setSavingPassword] = useState(false);
 
   const [deleteError, setDeleteError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (user) {
-      setName(user.name);
-      setSkinConditions(user.skinConditions.join(", "));
-    }
-  }, [user]);
-
-  if (!user) {
-    return null;
-  }
 
   const profileUnchanged =
     name.trim() === user.name && skinConditions === user.skinConditions.join(", ");
 
   const handleProfileSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setProfileMessage(null);
-    setProfileError(null);
+    setProfileStatus(null);
     setSavingProfile(true);
 
     try {
       const updated = await updateUser(user.id, {
         name,
-        skinConditions: skinConditions
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean),
+        skinConditions: parseSkinConditions(skinConditions),
       });
       setUser(updated);
-      setProfileMessage("Perfil atualizado com sucesso.");
+      setProfileStatus({ type: "success", text: "Perfil atualizado com sucesso." });
     } catch (err) {
-      setProfileError(getErrorMessage(err, "Não foi possível atualizar seu perfil. Tente novamente."));
+      setProfileStatus({
+        type: "error",
+        text: getErrorMessage(err, "Não foi possível atualizar seu perfil. Tente novamente."),
+      });
     } finally {
       setSavingProfile(false);
     }
@@ -66,11 +66,10 @@ export default function Profile() {
 
   const handlePasswordSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setPasswordMessage(null);
-    setPasswordError(null);
+    setPasswordStatus(null);
 
     if (newPassword !== confirmNewPassword) {
-      setPasswordError("As senhas não coincidem.");
+      setPasswordStatus({ type: "error", text: "As senhas não coincidem." });
       return;
     }
 
@@ -81,13 +80,14 @@ export default function Profile() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmNewPassword("");
-      setPasswordMessage("Senha alterada com sucesso.");
+      setPasswordStatus({ type: "success", text: "Senha alterada com sucesso." });
     } catch (err) {
-      if (axios.isAxiosError(err) && err.response?.status === 400) {
-        setPasswordError("Senha atual incorreta.");
-      } else {
-        setPasswordError(getErrorMessage(err, "Não foi possível alterar sua senha. Tente novamente."));
-      }
+      setPasswordStatus({
+        type: "error",
+        text: getErrorMessage(err, "Não foi possível alterar sua senha. Tente novamente.", {
+          400: "Senha atual incorreta.",
+        }),
+      });
     } finally {
       setSavingPassword(false);
     }
@@ -136,36 +136,27 @@ export default function Profile() {
             Dados pessoais
           </h2>
 
-          <label className="flex flex-col gap-2">
-            <span className="text-xs font-medium uppercase tracking-[0.18em] text-ink/60">
-              Nome
-            </span>
-            <input
-              type="text"
-              required
-              maxLength={120}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
-            />
-          </label>
+          <FormField
+            label="Nome"
+            required
+            maxLength={120}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
 
-          <label className="flex flex-col gap-2">
-            <span className="text-xs font-medium uppercase tracking-[0.18em] text-ink/60">
-              Condições de pele
-            </span>
-            <input
-              type="text"
-              placeholder="Ex: oleosidade, sensibilidade"
-              value={skinConditions}
-              onChange={(e) => setSkinConditions(e.target.value)}
-              className="rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
-            />
-            <span className="text-xs text-ink/40">Separe por vírgulas.</span>
-          </label>
+          <FormField
+            label="Condições de pele"
+            placeholder="Ex: oleosidade, sensibilidade"
+            value={skinConditions}
+            onChange={(e) => setSkinConditions(e.target.value)}
+            hint="Separe por vírgulas."
+          />
 
-          {profileMessage && <p className="text-sm text-ink/70">{profileMessage}</p>}
-          {profileError && <p className="text-sm text-red-700">{profileError}</p>}
+          {profileStatus && (
+            <p className={`text-sm ${profileStatus.type === "error" ? "text-red-700" : "text-ink/70"}`}>
+              {profileStatus.text}
+            </p>
+          )}
 
           <button
             type="submit"
@@ -181,48 +172,39 @@ export default function Profile() {
             Alterar senha
           </h2>
 
-          <label className="flex flex-col gap-2">
-            <span className="text-xs font-medium uppercase tracking-[0.18em] text-ink/60">
-              Senha atual
-            </span>
-            <PasswordInput
-              required
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
-            />
-          </label>
+          <FormField
+            label="Senha atual"
+            type="password"
+            required
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+          />
 
-          <label className="flex flex-col gap-2">
-            <span className="text-xs font-medium uppercase tracking-[0.18em] text-ink/60">
-              Nova senha
-            </span>
-            <PasswordInput
-              required
-              minLength={8}
-              maxLength={72}
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
-            />
-          </label>
+          <FormField
+            label="Nova senha"
+            type="password"
+            required
+            minLength={8}
+            maxLength={72}
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+          />
 
-          <label className="flex flex-col gap-2">
-            <span className="text-xs font-medium uppercase tracking-[0.18em] text-ink/60">
-              Confirmar nova senha
-            </span>
-            <PasswordInput
-              required
-              minLength={8}
-              maxLength={72}
-              value={confirmNewPassword}
-              onChange={(e) => setConfirmNewPassword(e.target.value)}
-              className="w-full rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
-            />
-          </label>
+          <FormField
+            label="Confirmar nova senha"
+            type="password"
+            required
+            minLength={8}
+            maxLength={72}
+            value={confirmNewPassword}
+            onChange={(e) => setConfirmNewPassword(e.target.value)}
+          />
 
-          {passwordMessage && <p className="text-sm text-ink/70">{passwordMessage}</p>}
-          {passwordError && <p className="text-sm text-red-700">{passwordError}</p>}
+          {passwordStatus && (
+            <p className={`text-sm ${passwordStatus.type === "error" ? "text-red-700" : "text-ink/70"}`}>
+              {passwordStatus.text}
+            </p>
+          )}
 
           <button
             type="submit"

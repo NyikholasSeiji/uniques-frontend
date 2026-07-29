@@ -5,8 +5,17 @@ interface ApiErrorBody {
   errors?: Record<string, string>;
 }
 
-export const getErrorMessage = (error: unknown, fallback: string): string => {
+export const getErrorMessage = (
+  error: unknown,
+  fallback: string,
+  statusMessages?: Record<number, string>
+): string => {
   if (axios.isAxiosError<ApiErrorBody>(error)) {
+    const status = error.response?.status;
+    if (status && statusMessages?.[status]) {
+      return statusMessages[status];
+    }
+
     const data = error.response?.data;
     if (data?.errors) {
       const firstFieldError = Object.values(data.errors)[0];

@@ -1,11 +1,11 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import PasswordInput from "../components/PasswordInput";
+import FormField from "../components/FormField";
 import { useAuth } from "../context/AuthContext";
 import { getErrorMessage } from "../utils/errors";
+import { parseSkinConditions } from "../utils/skinConditions";
 
 export default function Register() {
   const { register } = useAuth();
@@ -35,18 +35,15 @@ export default function Register() {
         name,
         email,
         password,
-        skinConditions: skinConditions
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean),
+        skinConditions: parseSkinConditions(skinConditions),
       });
       navigate("/perfil");
     } catch (err) {
-      if (axios.isAxiosError(err) && err.response?.status === 409) {
-        setError("Este e-mail já está cadastrado.");
-      } else {
-        setError(getErrorMessage(err, "Não foi possível criar sua conta. Tente novamente."));
-      }
+      setError(
+        getErrorMessage(err, "Não foi possível criar sua conta. Tente novamente.", {
+          409: "Este e-mail já está cadastrado.",
+        })
+      );
     } finally {
       setSubmitting(false);
     }
@@ -64,76 +61,51 @@ export default function Register() {
         </h1>
 
         <form onSubmit={handleSubmit} className="mt-10 flex flex-col gap-5">
-          <label className="flex flex-col gap-2">
-            <span className="text-xs font-medium uppercase tracking-[0.18em] text-ink/60">
-              Nome
-            </span>
-            <input
-              type="text"
-              required
-              maxLength={120}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
-            />
-          </label>
+          <FormField
+            label="Nome"
+            required
+            maxLength={120}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
 
-          <label className="flex flex-col gap-2">
-            <span className="text-xs font-medium uppercase tracking-[0.18em] text-ink/60">
-              E-mail
-            </span>
-            <input
-              type="email"
-              required
-              maxLength={254}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
-            />
-          </label>
+          <FormField
+            label="E-mail"
+            type="email"
+            required
+            maxLength={254}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-          <label className="flex flex-col gap-2">
-            <span className="text-xs font-medium uppercase tracking-[0.18em] text-ink/60">
-              Senha
-            </span>
-            <PasswordInput
-              required
-              minLength={8}
-              maxLength={72}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
-            />
-            <span className="text-xs text-ink/40">Mínimo de 8 caracteres.</span>
-          </label>
+          <FormField
+            label="Senha"
+            type="password"
+            required
+            minLength={8}
+            maxLength={72}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            hint="Mínimo de 8 caracteres."
+          />
 
-          <label className="flex flex-col gap-2">
-            <span className="text-xs font-medium uppercase tracking-[0.18em] text-ink/60">
-              Confirmar senha
-            </span>
-            <PasswordInput
-              required
-              minLength={8}
-              maxLength={72}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
-            />
-          </label>
+          <FormField
+            label="Confirmar senha"
+            type="password"
+            required
+            minLength={8}
+            maxLength={72}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
 
-          <label className="flex flex-col gap-2">
-            <span className="text-xs font-medium uppercase tracking-[0.18em] text-ink/60">
-              Condições de pele (opcional)
-            </span>
-            <input
-              type="text"
-              placeholder="Ex: oleosidade, sensibilidade"
-              value={skinConditions}
-              onChange={(e) => setSkinConditions(e.target.value)}
-              className="rounded-lg border border-ink/15 bg-cream px-4 py-3 text-sm text-ink outline-none transition-colors focus:border-ink"
-            />
-            <span className="text-xs text-ink/40">Separe por vírgulas. Você pode preencher depois no seu perfil.</span>
-          </label>
+          <FormField
+            label="Condições de pele (opcional)"
+            placeholder="Ex: oleosidade, sensibilidade"
+            value={skinConditions}
+            onChange={(e) => setSkinConditions(e.target.value)}
+            hint="Separe por vírgulas. Você pode preencher depois no seu perfil."
+          />
 
           {error && <p className="text-sm text-red-700">{error}</p>}
 

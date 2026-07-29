@@ -1,13 +1,16 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
   type ReactNode,
 } from "react";
+import api from "../services/api";
 import { login as loginRequest, register as registerRequest } from "../services/auth";
 import { getMe } from "../services/users";
-import type { LoginRequest, RegisterRequest, User } from "../types/user";
+import type { AuthResponse, LoginRequest, RegisterRequest, User } from "../types/user";
 
 interface AuthContextValue {
   user: User | null;
@@ -22,12 +25,10 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !!localStorage.getItem("token"));
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setLoading(false);
+    if (!localStorage.getItem("token")) {
       return;
     }
 
@@ -38,37 +39,51 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    const handleUnauthorized = () => setUser(null);
-    window.addEventListener("auth:unauthorized", handleUnauthorized);
-    return () => window.removeEventListener("auth:unauthorized", handleUnauthorized);
+    const interceptorId = api.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401 && localStorage.getItem("token")) {
+          localStorage.removeItem("token");
+          setUser(null);
+        }
+        return Promise.reject(error);
+      }
+    );
+    return () => api.interceptors.response.eject(interceptorId);
   }, []);
 
-  const login = async (data: LoginRequest) => {
-    const response = await loginRequest(data);
-    localStorage.setItem("token", response.token);
-    const me = await getMe();
-    setUser(me);
-    return me;
-  };
+  const authenticate = useCallback(
+    async <T,>(request: (data: T) => Promise<AuthResponse>, data: T): Promise<User> => {
+      const response = await request(data);
+      localStorage.setItem("token", response.token);
+      const me = await getMe();
+      setUser(me);
+      return me;
+    },
+    []
+  );
 
-  const register = async (data: RegisterRequest) => {
-    const response = await registerRequest(data);
-    localStorage.setItem("token", response.token);
-    const me = await getMe();
-    setUser(me);
-    return me;
-  };
+  const login = useCallback(
+    (data: LoginRequest) => authenticate(loginRequest, data),
+    [authenticate]
+  );
 
-  const logout = () => {
+  const register = useCallback(
+    (data: RegisterRequest) => authenticate(registerRequest, data),
+    [authenticate]
+  );
+
+  const logout = useCallback(() => {
     localStorage.removeItem("token");
     setUser(null);
-  };
+  }, []);
 
-  return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, setUser }}>
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo(
+    () => ({ user, loading, login, register, logout, setUser }),
+    [user, loading, login, register, logout]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = (): AuthContextValue => {

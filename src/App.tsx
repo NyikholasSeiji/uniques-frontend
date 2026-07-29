@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
-import ProtectedRoute from "./components/ProtectedRoute";
-import PublicOnlyRoute from "./components/PublicOnlyRoute";
+import AuthGate from "./components/AuthGate";
 import LandingPage from "./pages/LandingPage";
 import Questionnaire from "./pages/Questionnaire";
 import Results from "./pages/Results";
@@ -21,25 +20,25 @@ export default function App() {
             <Route
               path="/login"
               element={
-                <PublicOnlyRoute>
+                <AuthGate require="anonymous">
                   <Login />
-                </PublicOnlyRoute>
+                </AuthGate>
               }
             />
             <Route
               path="/registro"
               element={
-                <PublicOnlyRoute>
+                <AuthGate require="anonymous">
                   <Register />
-                </PublicOnlyRoute>
+                </AuthGate>
               }
             />
             <Route
               path="/perfil"
               element={
-                <ProtectedRoute>
+                <AuthGate require="authenticated">
                   <Profile />
-                </ProtectedRoute>
+                </AuthGate>
               }
             />
           </Routes>
