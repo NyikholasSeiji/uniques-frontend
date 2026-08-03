@@ -11,4 +11,7 @@ export interface Product {
 export interface QuestionnaireRequest {
   skinType?: string;
   concerns: string[];
+  categories?: string[];
+  maxPrice?: number;
+  avoidIngredients?: string[];
 }
