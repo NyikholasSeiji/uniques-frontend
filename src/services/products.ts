@@ -1,5 +1,5 @@
 import api from "./api";
-import type { Product, QuestionnaireRequest } from "../types/product";
+import type { Product, ProductInput, QuestionnaireRequest } from "../types/product";
 
 export const getProducts = async (skinCondition?: string): Promise<Product[]> => {
   const response = await api.get<Product[]>("/products", {
@@ -23,12 +23,12 @@ export const getRecommendations = async (data: QuestionnaireRequest): Promise<Pr
   return response.data;
 };
 
-export const createProduct = async (data: Product): Promise<Product> => {
+export const createProduct = async (data: ProductInput): Promise<Product> => {
   const response = await api.post<Product>("/products", data);
   return response.data;
 };
 
-export const updateProduct = async (id: string, data: Product): Promise<Product> => {
+export const updateProduct = async (id: string, data: ProductInput): Promise<Product> => {
   const response = await api.put<Product>(`/products/${id}`, data);
   return response.data;
 };

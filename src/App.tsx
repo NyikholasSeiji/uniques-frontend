@@ -7,6 +7,7 @@ import Results from "./pages/Results";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
+import Admin from "./pages/Admin";
 
 export default function App() {
   return (
@@ -38,6 +39,14 @@ export default function App() {
               element={
                 <AuthGate require="authenticated">
                   <Profile />
+                </AuthGate>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <AuthGate require="admin">
+                  <Admin />
                 </AuthGate>
               }
             />

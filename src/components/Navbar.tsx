@@ -51,6 +51,14 @@ const Navbar = ({ minimal = false }: NavbarProps) => {
         )}
 
         <div className={`items-center gap-4 ${minimal ? "flex" : "hidden md:flex"}`}>
+          {user?.role === "ADMIN" && (
+            <Link
+              to="/admin"
+              className="text-xs font-medium uppercase tracking-[0.18em] text-ink/70 transition-colors hover:text-ink"
+            >
+              Admin
+            </Link>
+          )}
           <Link
             to={user ? "/perfil" : "/login"}
             className="text-xs font-medium uppercase tracking-[0.18em] text-ink/70 transition-colors hover:text-ink"
@@ -94,6 +102,15 @@ const Navbar = ({ minimal = false }: NavbarProps) => {
               {link.label}
             </a>
           ))}
+          {user?.role === "ADMIN" && (
+            <Link
+              to="/admin"
+              onClick={() => setOpen(false)}
+              className="py-3 text-xs font-medium uppercase tracking-[0.18em] text-ink/70"
+            >
+              Admin
+            </Link>
+          )}
           <Link
             to={user ? "/perfil" : "/login"}
             onClick={() => setOpen(false)}

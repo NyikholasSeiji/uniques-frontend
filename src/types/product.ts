@@ -8,6 +8,8 @@ export interface Product {
   price: number;
 }
 
+export type ProductInput = Omit<Product, "id">;
+
 export interface QuestionnaireRequest {
   skinType?: string;
   concerns: string[];

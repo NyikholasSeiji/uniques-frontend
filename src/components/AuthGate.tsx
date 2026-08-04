@@ -5,8 +5,8 @@ import LoadingScreen from "./LoadingScreen";
 
 interface AuthGateProps {
   children: ReactNode;
-  /** "authenticated" só permite acesso logado; "anonymous" só permite acesso deslogado. */
-  require: "authenticated" | "anonymous";
+  /** "authenticated" só permite acesso logado; "anonymous" só permite acesso deslogado; "admin" só permite administradoras. */
+  require: "authenticated" | "anonymous" | "admin";
 }
 
 const AuthGate = ({ children, require }: AuthGateProps) => {
@@ -22,6 +22,15 @@ const AuthGate = ({ children, require }: AuthGateProps) => {
 
   if (require === "anonymous" && user) {
     return <Navigate to="/perfil" replace />;
+  }
+
+  if (require === "admin") {
+    if (!user) {
+      return <Navigate to="/login" replace />;
+    }
+    if (user.role !== "ADMIN") {
+      return <Navigate to="/perfil" replace />;
+    }
   }
 
   return <>{children}</>;

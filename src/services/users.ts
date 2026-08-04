@@ -1,6 +1,11 @@
 import api from "./api";
 import type { ChangePasswordRequest, UpdateUserRequest, User } from "../types/user";
 
+export const getAllUsers = async (): Promise<User[]> => {
+  const response = await api.get<User[]>("/users");
+  return response.data;
+};
+
 export const getMe = async (): Promise<User> => {
   const response = await api.get<User>("/users/me");
   return response.data;
@@ -22,4 +27,9 @@ export const changePassword = async (id: string, data: ChangePasswordRequest): P
 
 export const deleteUser = async (id: string): Promise<void> => {
   await api.delete(`/users/${id}`);
+};
+
+export const updateUserRole = async (id: string, role: string): Promise<User> => {
+  const response = await api.put<User>(`/users/${id}/role`, { role });
+  return response.data;
 };
