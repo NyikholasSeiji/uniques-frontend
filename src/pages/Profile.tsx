@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import FormField from "../components/FormField";
@@ -8,6 +9,24 @@ import { changePassword, deleteUser, updateUser } from "../services/users";
 import { getErrorMessage } from "../utils/errors";
 import { parseSkinConditions } from "../utils/skinConditions";
 import type { User } from "../types/user";
+
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return null;
+  try {
+    return new Intl.DateTimeFormat("pt-BR", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }).format(new Date(dateStr));
+  } catch {
+    return null;
+  }
+};
+
+const formatBudget = (maxPrice?: number) => {
+  if (!maxPrice) return "Sem limite";
+  return maxPrice.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+};
 
 type FormStatus = { type: "success" | "error"; text: string } | null;
 
@@ -166,6 +185,113 @@ function ProfileContent({ user }: { user: User }) {
             {savingProfile ? "Salvando..." : "Salvar alterações"}
           </button>
         </form>
+
+        <section className="mt-16 rounded-2xl border border-ink/10 bg-sand/30 p-6 sm:p-8">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-xs font-medium uppercase tracking-[0.18em] text-ink/60">
+              Meu Questionário de Pele
+            </h2>
+            {user.questionnaire?.submittedAt && (
+              <span className="text-[11px] text-ink/50">
+                Respondido em {formatDate(user.questionnaire.submittedAt)}
+              </span>
+            )}
+          </div>
+
+          {user.questionnaire ? (
+            <div className="mt-6 flex flex-col gap-5">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <span className="text-xs text-ink/40">Tipo de pele</span>
+                  <p className="mt-1 text-sm font-medium capitalize text-ink">
+                    {user.questionnaire.skinType || "Não informado"}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-xs text-ink/40">Orçamento máximo</span>
+                  <p className="mt-1 text-sm font-medium text-ink">
+                    {formatBudget(user.questionnaire.maxPrice)}
+                  </p>
+                </div>
+              </div>
+
+              {user.questionnaire.concerns && user.questionnaire.concerns.length > 0 && (
+                <div>
+                  <span className="text-xs text-ink/40">Preocupações</span>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {user.questionnaire.concerns.map((concern) => (
+                      <span
+                        key={concern}
+                        className="rounded-full border border-ink/15 bg-cream/70 px-3 py-1 text-xs uppercase tracking-wide text-ink/80"
+                      >
+                        {concern}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {user.questionnaire.categories && user.questionnaire.categories.length > 0 && (
+                <div>
+                  <span className="text-xs text-ink/40">Categorias de interesse</span>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {user.questionnaire.categories.map((cat) => (
+                      <span
+                        key={cat}
+                        className="rounded-full border border-ink/15 bg-cream/70 px-3 py-1 text-xs uppercase tracking-wide text-ink/80"
+                      >
+                        {cat}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {user.questionnaire.avoidIngredients && user.questionnaire.avoidIngredients.length > 0 && (
+                <div>
+                  <span className="text-xs text-ink/40">Ingredientes a evitar</span>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {user.questionnaire.avoidIngredients.map((ing) => (
+                      <span
+                        key={ing}
+                        className="rounded-full border border-red-700/20 bg-red-50/50 px-3 py-1 text-xs uppercase tracking-wide text-red-700/80"
+                      >
+                        {ing}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-ink/10 pt-4">
+                <Link
+                  to="/resultados"
+                  className="rounded-full bg-ink px-6 py-2.5 text-xs font-medium uppercase tracking-[0.18em] text-cream transition-colors hover:bg-gold"
+                >
+                  Ver rotina recomendada
+                </Link>
+                <Link
+                  to="/questionario"
+                  className="rounded-full border border-ink px-6 py-2.5 text-xs font-medium uppercase tracking-[0.18em] text-ink transition-colors hover:bg-ink hover:text-cream"
+                >
+                  Refazer / Atualizar Quiz
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="mt-6">
+              <p className="text-sm text-ink/70">
+                Você ainda não preencheu seu questionário de pele. Responda às perguntas para que possamos indicar os produtos ideais para sua rotina.
+              </p>
+              <Link
+                to="/questionario"
+                className="mt-5 inline-block rounded-full bg-ink px-6 py-2.5 text-xs font-medium uppercase tracking-[0.18em] text-cream transition-colors hover:bg-gold"
+              >
+                Responder ao Quiz
+              </Link>
+            </div>
+          )}
+        </section>
 
         <form onSubmit={handlePasswordSubmit} className="mt-16 flex flex-col gap-5 border-t border-ink/10 pt-10">
           <h2 className="text-xs font-medium uppercase tracking-[0.18em] text-ink/40">

@@ -1,12 +1,16 @@
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { getMyQuestionnaire } from "../services/users";
 import type { Product } from "../types/product";
+import type { QuestionnaireData, QuestionnaireResponse } from "../types/user";
 
 interface ResultsState {
   products: Product[];
-  skinType: string | null;
-  concerns: string[];
+  skinType?: string | null;
+  concerns?: string[];
+  questionnaire?: QuestionnaireData;
 }
 
 const formatPrice = (price: number) =>
@@ -16,7 +20,46 @@ export default function Results() {
   const location = useLocation();
   const state = location.state as ResultsState | null;
 
-  if (!state) {
+  const [loading, setLoading] = useState(!state && !!localStorage.getItem("token"));
+  const [savedData, setSavedData] = useState<QuestionnaireResponse | null>(null);
+
+  useEffect(() => {
+    if (state) return;
+    if (!localStorage.getItem("token")) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    getMyQuestionnaire()
+      .then((data) => {
+        if (data.questionnaire) {
+          setSavedData(data);
+        }
+      })
+      .catch((err) => {
+        console.error("Erro ao carregar questionário salvo:", err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [state]);
+
+  if (loading) {
+    return (
+      <>
+        <Navbar minimal />
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-ink/20 border-t-ink" />
+        </div>
+        <Footer minimal />
+      </>
+    );
+  }
+
+  const hasData = state !== null || savedData?.questionnaire != null;
+
+  if (!hasData) {
     return (
       <>
         <Navbar minimal />
@@ -42,7 +85,16 @@ export default function Results() {
     );
   }
 
-  const { products } = state;
+  const products = state?.products ?? savedData?.recommendations ?? [];
+  const questionnaire =
+    state?.questionnaire ??
+    savedData?.questionnaire ??
+    (state?.skinType || state?.concerns?.length
+      ? {
+          skinType: state.skinType ?? undefined,
+          concerns: state.concerns ?? [],
+        }
+      : undefined);
 
   return (
     <>
@@ -59,6 +111,52 @@ export default function Results() {
             ? "Selecionamos os produtos com melhor combinação para o que você respondeu."
             : "Não encontramos produtos para essa combinação ainda."}
         </p>
+
+        {questionnaire && (
+          <div className="mt-8 rounded-2xl border border-ink/10 bg-sand/30 p-5 sm:p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-[0.18em] text-ink/40">
+                  Preferências da sua pele
+                </p>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  {questionnaire.skinType && (
+                    <span className="rounded-full bg-ink px-3 py-1 text-xs font-medium capitalize text-cream">
+                      {questionnaire.skinType}
+                    </span>
+                  )}
+                  {questionnaire.concerns?.map((c) => (
+                    <span
+                      key={c}
+                      className="rounded-full border border-ink/20 bg-cream/70 px-3 py-1 text-xs uppercase tracking-wide text-ink/80"
+                    >
+                      {c}
+                    </span>
+                  ))}
+                  {questionnaire.maxPrice ? (
+                    <span className="rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-medium text-ink/80">
+                      Até {formatPrice(questionnaire.maxPrice)}
+                    </span>
+                  ) : null}
+                  {questionnaire.categories?.map((cat) => (
+                    <span
+                      key={cat}
+                      className="rounded-full border border-ink/15 bg-cream/60 px-2.5 py-1 text-xs text-ink/70"
+                    >
+                      {cat}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <Link
+                to="/questionario"
+                className="self-start sm:self-center shrink-0 rounded-full border border-ink px-5 py-2 text-xs font-medium uppercase tracking-[0.18em] text-ink transition-colors hover:bg-ink hover:text-cream"
+              >
+                Refazer Quiz
+              </Link>
+            </div>
+          </div>
+        )}
 
         {products.length > 0 ? (
           <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">

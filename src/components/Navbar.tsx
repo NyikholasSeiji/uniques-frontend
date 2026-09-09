@@ -59,6 +59,14 @@ const Navbar = ({ minimal = false }: NavbarProps) => {
               Admin
             </Link>
           )}
+          {user?.questionnaire && (
+            <Link
+              to="/resultados"
+              className="text-xs font-medium uppercase tracking-[0.18em] text-ink/70 transition-colors hover:text-ink"
+            >
+              Minha Rotina
+            </Link>
+          )}
           <Link
             to={user ? "/perfil" : "/login"}
             className="text-xs font-medium uppercase tracking-[0.18em] text-ink/70 transition-colors hover:text-ink"
@@ -70,6 +78,7 @@ const Navbar = ({ minimal = false }: NavbarProps) => {
             className="rounded-full border border-ink px-6 py-2.5 text-xs font-medium uppercase tracking-[0.18em] text-ink transition-colors hover:bg-ink hover:text-cream"
           >
             Fazer o Quiz
+            {user?.questionnaire ? "Refazer Quiz" : "Fazer o Quiz"}
           </Link>
         </div>
 
@@ -111,6 +120,15 @@ const Navbar = ({ minimal = false }: NavbarProps) => {
               Admin
             </Link>
           )}
+          {user?.questionnaire && (
+            <Link
+              to="/resultados"
+              onClick={() => setOpen(false)}
+              className="py-3 text-xs font-medium uppercase tracking-[0.18em] text-ink/70"
+            >
+              Minha Rotina
+            </Link>
+          )}
           <Link
             to={user ? "/perfil" : "/login"}
             onClick={() => setOpen(false)}
@@ -124,6 +142,7 @@ const Navbar = ({ minimal = false }: NavbarProps) => {
             className="mt-2 rounded-full border border-ink px-6 py-3 text-center text-xs font-medium uppercase tracking-[0.18em] text-ink"
           >
             Fazer o Quiz
+            {user?.questionnaire ? "Refazer Quiz" : "Fazer o Quiz"}
           </Link>
         </div>
       )}
