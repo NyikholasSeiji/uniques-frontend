@@ -1,9 +1,14 @@
 import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { useAuth } from "../context/AuthContext";
 import { getRecommendations } from "../services/products";
+import { saveMyQuestionnaire } from "../services/users";
 import { getErrorMessage } from "../utils/errors";
+import type { Product, QuestionnaireRequest } from "../types/product";
+import type { QuestionnaireData } from "../types/user";
 
 interface Option {
   value: string;
@@ -99,6 +104,7 @@ const OptionGroup = ({ legend, hint, options, isSelected, onSelect, inputType }:
 
 export default function Questionnaire() {
   const navigate = useNavigate();
+  const { user, refreshUser } = useAuth();
 
   const [step, setStep] = useState(0);
   const [skinType, setSkinType] = useState<string | null>(null);
@@ -108,6 +114,17 @@ export default function Questionnaire() {
   const [avoidIngredients, setAvoidIngredients] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (user?.questionnaire) {
+      const q = user.questionnaire;
+      if (q.skinType) setSkinType(q.skinType);
+      if (q.concerns?.length) setConcerns(q.concerns);
+      if (q.categories?.length) setCategories(q.categories);
+      if (q.maxPrice !== undefined && q.maxPrice !== null) setBudget(String(q.maxPrice));
+      if (q.avoidIngredients?.length) setAvoidIngredients(q.avoidIngredients);
+    }
+  }, [user]);
 
   const toggleFrom = (setter: (updater: (prev: string[]) => string[]) => void, value: string) =>
     setter((prev) => (prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]));
@@ -135,13 +152,42 @@ export default function Questionnaire() {
 
     setSubmitting(true);
 
+    const payload: QuestionnaireRequest = {
+      skinType: skinType ?? undefined,
+      concerns,
+      categories: categories.length > 0 ? categories : undefined,
+      maxPrice: budget ? Number(budget) : undefined,
+      avoidIngredients: avoidIngredients.length > 0 ? avoidIngredients : undefined,
+    };
+
     try {
-      const products = await getRecommendations({
-        skinType: skinType ?? undefined,
-        concerns,
-        categories: categories.length > 0 ? categories : undefined,
-        maxPrice: budget ? Number(budget) : undefined,
-        avoidIngredients: avoidIngredients.length > 0 ? avoidIngredients : undefined,
+      let products: Product[];
+      let questionnaireData: QuestionnaireData | undefined;
+
+      if (user) {
+        const response = await saveMyQuestionnaire(payload);
+        products = response.recommendations;
+        questionnaireData = response.questionnaire ?? undefined;
+        await refreshUser();
+      } else {
+        products = await getRecommendations(payload);
+        questionnaireData = {
+          skinType: payload.skinType,
+          concerns: payload.concerns,
+          categories: payload.categories,
+          maxPrice: payload.maxPrice,
+          avoidIngredients: payload.avoidIngredients,
+          submittedAt: new Date().toISOString(),
+        };
+      }
+
+      navigate("/resultados", {
+        state: {
+          products,
+          skinType,
+          concerns,
+          questionnaire: questionnaireData,
+        },
       });
       navigate("/resultados", { state: { products, skinType, concerns } });
     } catch (err) {
@@ -225,6 +271,11 @@ export default function Questionnaire() {
         <h1 className="mt-4 font-display text-4xl font-medium leading-tight tracking-wide text-ink sm:text-5xl">
           Conte sobre a sua pele
         </h1>
+        {user?.questionnaire && (
+          <p className="mt-2 text-xs text-ink/60">
+            Respostas anteriores carregadas. Ajuste o que desejar para atualizar sua rotina.
+          </p>
+        )}
 
         <div className="mt-8 flex items-center gap-4">
           <div className="h-1 flex-1 overflow-hidden rounded-full bg-sand">
