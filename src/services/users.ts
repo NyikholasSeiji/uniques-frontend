@@ -1,5 +1,7 @@
 import api from "./api";
 import type { ChangePasswordRequest, UpdateUserRequest, User } from "../types/user";
+import type { ChangePasswordRequest, QuestionnaireResponse, UpdateUserRequest, User } from "../types/user";
+import type { QuestionnaireRequest } from "../types/product";
 
 export const getAllUsers = async (): Promise<User[]> => {
   const response = await api.get<User[]>("/users");
@@ -33,3 +35,14 @@ export const updateUserRole = async (id: string, role: string): Promise<User> =>
   const response = await api.put<User>(`/users/${id}/role`, { role });
   return response.data;
 };
+
+export const getMyQuestionnaire = async (): Promise<QuestionnaireResponse> => {
+  const response = await api.get<QuestionnaireResponse>("/users/me/questionnaire");
+  return response.data;
+};
+
+export const saveMyQuestionnaire = async (data: QuestionnaireRequest): Promise<QuestionnaireResponse> => {
+  const response = await api.post<QuestionnaireResponse>("/users/me/questionnaire", data);
+  return response.data;
+};
+

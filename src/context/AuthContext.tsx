@@ -19,6 +19,7 @@ interface AuthContextValue {
   register: (data: RegisterRequest) => Promise<User>;
   logout: () => void;
   setUser: (user: User) => void;
+  refreshUser: () => Promise<User>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -73,14 +74,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     [authenticate]
   );
 
+  const refreshUser = useCallback(async (): Promise<User> => {
+    const me = await getMe();
+    setUser(me);
+    return me;
+  }, []);
+
   const logout = useCallback(() => {
     localStorage.removeItem("token");
     setUser(null);
   }, []);
 
   const value = useMemo(
-    () => ({ user, loading, login, register, logout, setUser }),
-    [user, loading, login, register, logout]
+    () => ({ user, loading, login, register, logout, setUser, refreshUser }),
+    [user, loading, login, register, logout, refreshUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
